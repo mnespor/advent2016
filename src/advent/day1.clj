@@ -43,8 +43,6 @@
           []
           coll))
 
-;; (first-duplicate (reductions move home input))
-
 ;; returns intermediate points between start position (inclusive) and end position (exclusive)
 (defn intermediates [[start end]]
   (cond
@@ -54,3 +52,4 @@
     (> (:lon start) (:lon end)) (map (fn [x] {:lat (:lat start) :lon x}) (range (:lon start) (:lon end) -1))))
 
 ;(first-duplicate (flatten (map intermediates (partition 2 1 (reductions move home input)))))
+; probably more idiomatic to do something like (reduce (reductions move home input) intermediates) with a version of intermediates that takes an accumulator
