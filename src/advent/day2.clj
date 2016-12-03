@@ -7,7 +7,7 @@
 (def home [1 1])
 
 (defn clamp [x lower upper]
-  (max (min x upper) lower))
+  (-> x (max lower) (min upper)))
 
 (defn move [[x y] instruction]
   (case instruction
