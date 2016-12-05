@@ -16,3 +16,5 @@
 (defn triangle? [triangle]
   (let [triangle (sort (map parse-int triangle))]
     (> (+ (first triangle) (second triangle)) (last triangle))))
+
+; (count (filter triangle? triangles))
