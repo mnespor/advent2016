@@ -33,13 +33,11 @@
 (defn ssl? [ip]
   (let [abas (->> ip
                   supernets
-                  (map aba)
-                  (apply concat)
+                  (mapcat aba)
                   set)
         inverted-babs (->> ip
                            hypernets
-                           (map aba)
-                           (apply concat)
+                           (mapcat aba)
                            (map invert-aba)
                            set)]
     (seq (cs/intersection abas inverted-babs))))
