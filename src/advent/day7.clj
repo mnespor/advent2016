@@ -43,3 +43,5 @@
                            (map invert-aba)
                            set)]
     (seq (cs/intersection abas inverted-babs))))
+
+;; (count (filter ssl? input))
