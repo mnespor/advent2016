@@ -7,19 +7,19 @@
 
 (def hypernet-regex #"\[.*?\]")
 
-(defn supernet [s]
+(defn supernets [s]
   (string/split s hypernet-regex))
 
-(defn hypernet [s]
+(defn hypernets [s]
   (re-seq hypernet-regex s))
 
-;; negative lookahead: don't match \1 again
+;; negative lookahead: don't match aaaa
 (defn abba [s]
   (re-find #"(.)(?!\1)(.)\2\1" s))
 
 (defn tls? [ip]
-  (and (empty? (filter abba (hypernet ip)))
-       (seq (filter abba (supernet ip)))))
+  (and (empty? (filter abba (hypernets ip)))
+       (seq (filter abba (supernets ip)))))
 
 ;; (count (filter tls? input))
 
@@ -31,6 +31,15 @@
   (str (second s) (first s) (second s)))
 
 (defn ssl? [ip]
-  (let [abas (set (apply concat (map aba (supernet ip))))
-        inverted-babs (set (map invert-aba (apply concat (map aba (hypernet ip)))))]
+  (let [abas (->> ip
+                  supernets
+                  (map aba)
+                  (apply concat)
+                  set)
+        inverted-babs (->> ip
+                           hypernets
+                           (map aba)
+                           (apply concat)
+                           (map invert-aba)
+                           set)]
     (seq (cs/intersection abas inverted-babs))))
