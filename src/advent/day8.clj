@@ -11,14 +11,10 @@
   (matrix/set-selection m (range 0 h) (range 0 w) 1))
 
 (defn rotate-column [m x by]
-  (matrix/set-column m
-                     x
-                     (rotate-vec (matrix/get-column m x) by)))
+  (matrix/set-column m x (rotate-vec (matrix/get-column m x) by)))
 
 (defn rotate-row [m y by]
-  (matrix/set-row m
-                  y
-                  (rotate-vec (matrix/get-row m y) by)))
+  (matrix/set-row m y (rotate-vec (matrix/get-row m y) by)))
 
 (defn rotate-vec [v by]
   (as-> v wrap (take-last by wrap) (concat wrap v) (drop-last by wrap)))
@@ -33,4 +29,5 @@
 (defn solve []
   (matrix/esum (reduce command screen input)))
 
+; pm pretty-prints the matrix. Maybe replace 0 and 1 with . and # to make it more readable
 ; (matrix/pm (reduce command screen input))
