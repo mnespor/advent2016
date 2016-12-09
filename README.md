@@ -1,14 +1,9 @@
 # advent
 
-A Clojure library designed to ... well, that part is up to you.
-
-## Usage
-
-FIXME
+Advent of Code 2016
 
 ## License
 
-Copyright © 2016 FIXME
+Copyright © 2016 Matthew Nespor.
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License version 1.0
