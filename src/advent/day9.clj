@@ -82,10 +82,10 @@
     (let [times (core/parse-int (last match))
           marker-length (count (first match))
           subregions (split-by-region [] (subs region marker-length))]
-      (* times (reduce + (map expansion-size subregions))))
+      (* times (decompress-3 (subs region marker-length))))
     (count region)))
 
-;; this looks exactly like the recursive part of expansion-size... might be able to
-;; eliminate this with a refactor?
 (defn decompress-3 [s]
   (reduce + (map expansion-size (split-by-region [] s))))
+
+;; (decompress-3 input)
