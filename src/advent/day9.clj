@@ -69,6 +69,13 @@
         (recur (conj acc (subs s 0 length))
                (subs s length)))))
 
+;; this function got a little out of hand.
+;; If this region has no markers, split-by-region has ensured that it is not encompassed by any marker. Return its length.
+;; Else, find the repeat count (parse-int (last match)).
+;; Drop the marker.
+;; Split the remaining part of the region (less the marker) and sum the size of each subregion.
+;; Multiply that sum by the repeat count and bubble up.
+
 ;; region either starts with a marker, or contains no markers at all
 (defn expansion-size [region]
   (if-let [match (re-find marker-regex region)]
