@@ -9,16 +9,17 @@
 
 (def id-regex #"[\w]+ [\d]+")
 
-;; [source low-dest high-dest]
-(defn parse-instruction [s]
-  (map parse-value (re-seq #"[\w]+ [\d]+" s)))
-
 ;; extracts an int from "value n" but leaves bot and output bin identifiers untouched
 (defn parse-value [s]
   (let [[_ match] (re-find #"value ([\d]+)" s)]
     (or (core/parse-int match) s)))
 
+;; [source low-dest high-dest]
+(defn parse-instruction [s]
+  (map parse-value (re-seq #"[\w]+ [\d]+" s)))
+
 ;; takes an instruction. Returns true if the instruction depends on another instruction
+;; and false if the instruction is a root instruction
 (defn child? [instruction]
   (= 3 (count instruction)))
 
@@ -50,9 +51,9 @@
           (update-in [high-dest] conj high-chip)))))
 
 ;; (def solution (reduce run-instruction {} sorted-instructions))
-;; eyeball-grepped this for "bot 101 (61 17)"
+;; part 1: eyeball-grepped solution for "bot foo (61 17)"
 
-;; part 2
+;; part 2:
 ;; (get solution "output 0")
 ;; (get solution "output 1")
 ;; (get solution "output 2")
