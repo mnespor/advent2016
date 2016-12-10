@@ -79,7 +79,10 @@
 ;; region either starts with a marker, or contains no markers at all
 (defn expansion-size [region]
   (if-let [match (re-find marker-regex region)]
-    (* (core/parse-int (last match)) (reduce + (map expansion-size (split-by-region [] (subs region (count (first match)))))))
+    (let [times (core/parse-int (last match))
+          marker-length (count (first match))
+          subregions (split-by-region [] (subs region marker-length))]
+      (* times (reduce + (map expansion-size subregions))))
     (count region)))
 
 ;; this looks exactly like the recursive part of expansion-size... might be able to
