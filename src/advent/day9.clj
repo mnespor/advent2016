@@ -46,4 +46,36 @@
         :default (recur (+ acc (:index match))
                         (subs s (:index match)))))))
 
-; (decompress-2 0 input)
+
+;(time (decompress-2 0 input))
+;"Elapsed time: 1.2257759367112E7 msecs"
+;11658395076
+
+(defn first-region-length [s]
+  (let [match (re-find-index marker-regex s)]
+    (cond
+      (= -1 (:index match)) (count s)
+      (zero? (:index match)) (let [[match length] (:match match)
+                                   match (count match)
+                                   length (core/parse-int length)]
+                               (+ match length))
+      :default (:index match))))
+
+;; Split by the outermost marker that covers each boundary.
+;; Assume markers never cross boundaries.
+(defn split-by-region [acc s]
+  (if (zero? (count s)) acc
+      (let [length (first-region-length s)]
+        (recur (conj acc (subs s 0 length))
+               (subs s length)))))
+
+;; region either starts with a marker, or contains no markers at all
+(defn expansion-size [region]
+  (if-let [match (re-find marker-regex region)]
+    (* (core/parse-int (last match)) (reduce + (map expansion-size (split-by-region [] (subs region (count (first match)))))))
+    (count region)))
+
+;; this looks exactly like the recursive part of expansion-size... might be able to
+;; eliminate this with a refactor?
+(defn decompress-3 [s]
+  (reduce + (map expansion-size (split-by-region [] s))))
