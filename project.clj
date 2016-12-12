@@ -6,4 +6,5 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [digest "1.4.5"]
                  [net.mikera/core.matrix "0.57.0"]
-                 [aysylu/loom "0.6.0"]])
+                 [aysylu/loom "0.6.0"]
+                 [org.clojure/math.combinatorics "0.1.3"]])
