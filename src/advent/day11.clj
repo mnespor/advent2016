@@ -48,6 +48,9 @@
 
 ;; all moves, legal or illegal. A move brings one or two items from floor
 ;; to inc floor or to dec floor
+;; TODO: generate all combinations of two items on the current floor, concat to a list of
+;; individual items on the current floor, then try each one both up and down (clamped
+;; to floors 0 and 3)
 (defn all-moves [world])
 
 (defn has-gen? [floor chip]
