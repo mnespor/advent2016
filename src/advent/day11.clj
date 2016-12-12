@@ -36,7 +36,7 @@
 
 ;; get a list of legal (non-chip-frying) moves.
 ;; make each move.
-;; recur.
+;; return (min recur).
 ;; If we encounter a world we've seen before, terminate.
 ;; If we get stuck on a floor with no legal moves, terminate.
 ;; If everything is on the fourth floor, terminate and return the number of moves taken
@@ -70,3 +70,6 @@
 (defn legal-moves [world]
   (let [{:keys [floors seen elevator]} world]
     ))
+
+(defn win? [world]
+  (= 10 (count (get-in world [:floors 3]))))
