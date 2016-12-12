@@ -6,7 +6,5 @@
 (defn transpose [v]
   (apply mapv vector v))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn clamp [x lower-bound upper-bound]
+  (max (min x upper-bound) lower-bound))

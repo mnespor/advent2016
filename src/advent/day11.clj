@@ -36,9 +36,9 @@
 
 ;; get a list of legal (non-chip-frying) moves.
 ;; make each move.
-;; return (min recur).
+;; return (min (map recur)).
 ;; If we encounter a world we've seen before, terminate.
-;; If we get stuck on a floor with no legal moves, terminate.
+;; If we get stuck on a floor with no legal moves, terminate. maybe with Integer/MAX_VALUE?
 ;; If everything is on the fourth floor, terminate and return the number of moves taken
 
 (defn chip? [item]
@@ -46,13 +46,14 @@
 
 ;; chip is not fried if the floor contains no gens or if it contains
 
-;; all moves, legal or illegal. A move brings one or two items from floor
-;; to inc floor or to dec floor
+;; all moves, legal and illegal. A move brings one or two items from floor
+;; to (inc floor) or to (dec floor)
 ;; TODO: generate all combinations of two items on the current floor, concat to a list of
 ;; individual items on the current floor, then try each one both up and down (clamped
 ;; to floors 0 and 3)
 (defn all-moves [world])
 
+;; does floor have the corresponding generator for chip?
 (defn has-gen? [floor chip]
   (some #{{:type :gen :id (:id chip)}} floor))
 
