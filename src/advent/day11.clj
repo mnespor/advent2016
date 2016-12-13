@@ -1,7 +1,8 @@
 (ns advent.day11
   (:require [advent.core :as core]
             [clojure.string :as string]
-            [clojure.math.combinatorics :as combinatorics]))
+            [clojure.math.combinatorics :as combinatorics]
+            [clojure.set :as set]))
 
 ;; what, parsing?
 ;;The first floor contains a promethium generator and a promethium-compatible microchip.
@@ -46,12 +47,33 @@
 
 ;; chip is not fried if the floor contains no gens or if it contains
 
-;; all moves, legal and illegal. A move brings one or two items from floor
-;; to (inc floor) or to (dec floor)
-;; TODO: generate all combinations of two items on the current floor, concat to a list of
-;; individual items on the current floor, then try each one both up and down (clamped
-;; to floors 0 and 3)
-(defn all-moves [world])
+
+;; it's a p bad idea to take both a chip and a non-matching generator at the same time
+(defn bad-idea? [combination]
+  (and (< 1 (count combination))
+       (let [[x y] combination]
+         (and (not= (:type x) (:type y))
+              (not= (:id x) (:id y))))))
+
+(defn move [world from to items]
+  (-> world
+      (update-in [:seen] conj (:floors world))
+      (update-in [:moves] inc)
+      (assoc :elevator to)
+      (update-in [:floors from] set/difference items)
+      (update-in [:floors to] set/union items)))
+
+;; all moves, legal and illegal, except for obviously bad ideas.
+;; A move brings one or two items from floor to (inc floor) or to (dec floor)
+(defn all-moves [world]
+  (let [items (get-in world [:floors (:elevator world)])
+        combinations (remove bad-idea? (concat (combinatorics/combinations items 2) (map list items)))
+        from (:elevator world)]
+    (case from
+      0 (map (partial move world from (inc from)) combinations)
+      3 (map (partial move world (dec from)) combinations)
+      (concat (map (partial move world from (inc from)) combinations)
+              (map (partial move world from (dec from)) combinations)))))
 
 ;; does floor have the corresponding generator for chip?
 (defn has-gen? [floor chip]
