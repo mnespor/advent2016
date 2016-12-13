@@ -45,9 +45,6 @@
 (defn chip? [item]
   (= (:type item) :chip))
 
-;; chip is not fried if the floor contains no gens or if it contains
-
-
 ;; it's a p bad idea to take both a chip and a non-matching generator at the same time
 (defn bad-idea? [combination]
   (and (< 1 (count combination))
@@ -57,11 +54,11 @@
 
 (defn move [world from to items]
   (-> world
-      (update-in [:seen] conj (:floors world))
       (update-in [:moves] inc)
       (assoc :elevator to)
-      (update-in [:floors from] set/difference items)
-      (update-in [:floors to] set/union items)))
+      (update-in [:floors from] set/difference (set items))
+      (update-in [:floors to] set/union (set items))
+      (update-in [:seen] conj (:floors world))))
 
 ;; all moves, legal and illegal, except for obviously bad ideas.
 ;; A move brings one or two items from floor to (inc floor) or to (dec floor)
@@ -71,7 +68,7 @@
         from (:elevator world)]
     (case from
       0 (map (partial move world from (inc from)) combinations)
-      3 (map (partial move world (dec from)) combinations)
+      3 (map (partial move world from (dec from)) combinations)
       (concat (map (partial move world from (inc from)) combinations)
               (map (partial move world from (dec from)) combinations)))))
 
@@ -87,12 +84,34 @@
         (every? (partial has-gen? floor) chips))))
 
 (defn legal-world? [world]
+  (if (some #{(:floors world)} (:seen world))
+    (println "seen this world"))
   (and (not-any? #{(:floors world)} (:seen world))
        (every? legal-floor? (:floors world))))
 
 (defn legal-moves [world]
-  (let [{:keys [floors seen elevator]} world]
-    ))
+  (filter legal-world? (all-moves world)))
 
 (defn win? [world]
-  (= 10 (count (get-in world [:floors 3]))))
+  (= 4 (count (get-in world [:floors 3]))))
+
+(defn solve [world]
+  (if (win? world)
+    (:moves world)
+    (let [worlds (legal-moves world)]
+      (if (zero? (count worlds))
+        Integer/MAX_VALUE
+        (min (map solve worlds))))))
+
+(def test-world {:moves 0
+                 :seen #{}
+                 :elevator 0
+                 :floors [#{{:type :chip
+                                :id :h}
+                            {:type :chip
+                             :id :l}}
+                          #{{:type :gen
+                             :id :h}}
+                          #{{:type :gen
+                             :id :l}}
+                          #{}]})
