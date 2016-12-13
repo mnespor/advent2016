@@ -2,7 +2,8 @@
   (:require [advent.core :as core]
             [clojure.string :as string]
             [clojure.math.combinatorics :as combinatorics]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [loom.alg-generic :as alg-generic]))
 
 ;; what, parsing?
 ;;The first floor contains a promethium generator and a promethium-compatible microchip.
@@ -10,9 +11,7 @@
 ;;The third floor contains a cobalt-compatible microchip, a curium-compatible microchip, a ruthenium-compatible microchip, and a plutonium-compatible microchip.
 ;;The fourth floor contains nothing relevant.
 
-(def initial-world {:moves 0
-                    :seen #{}
-                    :elevator 0
+(def initial-world {:elevator 0
                     :floors [#{{:type :gen
                                 :id :pm}
                                {:type :chip
@@ -35,12 +34,94 @@
                                 :id :pu}}
                              #{}]})
 
-;; get a list of legal (non-chip-frying) moves.
-;; make each move.
-;; return (min (map recur)).
-;; If we encounter a world we've seen before, terminate.
-;; If we get stuck on a floor with no legal moves, terminate. maybe with Integer/MAX_VALUE?
-;; If everything is on the fourth floor, terminate and return the number of moves taken
+(def part-2-world {:elevator 0
+                   :floors [#{{:type :gen
+                               :id :el}
+                              {:type :chip
+                               :id :el}
+                              {:type :gen
+                               :id :di}
+                              {:type :chip
+                               :id :di}
+                              {:type :gen
+                               :id :pm}
+                              {:type :chip
+                               :id :pm}}
+                            #{{:type :gen
+                               :id :co}
+                              {:type :gen
+                               :id :cm}
+                              {:type :gen
+                               :id :ru}
+                              {:type :gen
+                               :id :pu}}
+                            #{{:type :chip
+                               :id :co}
+                              {:type :chip
+                               :id :cm}
+                              {:type :chip
+                               :id :ru}
+                              {:type :chip
+                               :id :pu}}
+                            #{}]})
+
+(def goal-world {:elevator 3
+                 :floors [#{}
+                          #{}
+                          #{}
+                          #{{:type :gen
+                             :id :pm}
+                            {:type :chip
+                             :id :pm}
+                            {:type :gen
+                             :id :co}
+                            {:type :gen
+                             :id :cm}
+                            {:type :gen
+                             :id :ru}
+                            {:type :gen
+                             :id :pu}
+                            {:type :chip
+                             :id :co}
+                            {:type :chip
+                             :id :cm}
+                            {:type :chip
+                             :id :ru}
+                            {:type :chip
+                             :id :pu}}]})
+
+(def part-2-goal {:elevator 3
+                  :floors [#{}
+                           #{}
+                           #{}
+                           #{{:type :gen
+                              :id :el}
+                             {:type :chip
+                              :id :el}
+                             {:type :gen
+                              :id :di}
+                             {:type :chip
+                              :id :di}
+                             {:type :gen
+                              :id :pm}
+                             {:type :chip
+                              :id :pm}
+                             {:type :gen
+                              :id :co}
+                             {:type :gen
+                              :id :cm}
+                             {:type :gen
+                              :id :ru}
+                             {:type :gen
+                              :id :pu}
+                             {:type :chip
+                              :id :co}
+                             {:type :chip
+                              :id :cm}
+                             {:type :chip
+                              :id :ru}
+                             {:type :chip
+                              :id :pu}}]})
 
 (defn chip? [item]
   (= (:type item) :chip))
@@ -54,11 +135,9 @@
 
 (defn move [world from to items]
   (-> world
-      (update-in [:moves] inc)
       (assoc :elevator to)
       (update-in [:floors from] set/difference (set items))
-      (update-in [:floors to] set/union (set items))
-      (update-in [:seen] conj (:floors world))))
+      (update-in [:floors to] set/union (set items))))
 
 ;; all moves, legal and illegal, except for obviously bad ideas.
 ;; A move brings one or two items from floor to (inc floor) or to (dec floor)
@@ -84,28 +163,12 @@
         (every? (partial has-gen? floor) chips))))
 
 (defn legal-world? [world]
-  (if (some #{(:floors world)} (:seen world))
-    (println "seen this world"))
-  (and (not-any? #{(:floors world)} (:seen world))
-       (every? legal-floor? (:floors world))))
+  (every? legal-floor? (:floors world)))
 
 (defn legal-moves [world]
   (filter legal-world? (all-moves world)))
 
-(defn win? [world]
-  (= 4 (count (get-in world [:floors 3]))))
-
-(defn solve [world]
-  (if (win? world)
-    (:moves world)
-    (let [worlds (legal-moves world)]
-      (if (zero? (count worlds))
-        Integer/MAX_VALUE
-        (min (map solve worlds))))))
-
-(def test-world {:moves 0
-                 :seen #{}
-                 :elevator 0
+(def test-world {:elevator 0
                  :floors [#{{:type :chip
                                 :id :h}
                             {:type :chip
@@ -115,3 +178,23 @@
                           #{{:type :gen
                              :id :l}}
                           #{}]})
+
+(def test-goal-world {:elevator 3
+                 :floors [#{}
+                          #{}
+                          #{}
+                          #{{:type :chip
+                                :id :h}
+                            {:type :chip
+                             :id :l}
+                            {:type :gen
+                             :id :h}
+                            {:type :gen
+                             :id :l}}]})
+
+;; get a list of legal (non-chip-frying) moves.
+;; make each move.
+
+;; loom counts the starting state
+(defn solve [world goal]
+  (dec (count (alg-generic/bf-path legal-moves world goal))))
