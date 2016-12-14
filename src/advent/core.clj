@@ -1,7 +1,7 @@
 (ns advent.core)
 
 (defn parse-int [s]
-  (and s (Integer. (re-find  #"\d+" s ))))
+  (and s (Integer. (re-find  #"-?[\d]+" s ))))
 
 (defn transpose [v]
   (apply mapv vector v))
