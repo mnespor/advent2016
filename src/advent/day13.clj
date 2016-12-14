@@ -22,27 +22,34 @@
 (def m-open? (memoize open?))
 
 (defn successors [[x y]]
-  (filter m-open? [[(inc x) y] [(dec x) y] [x (inc y)] [x (dec y)]]))
+  (filter open? [[(inc x) y] [(dec x) y] [x (inc y)] [x (dec y)]]))
 
 ;; loom counts the starting node
 (defn solve [point]
   (dec (count (alg-generic/dijkstra-path successors (constantly 1) [1 1] point))))
 
-(defn all-points [steps] (filter m-open? (combinatorics/selections (range 0 (+ 2 steps)) 2)))
+(defn all-points [steps] (combinatorics/selections (range 0 (+ 2 steps)) 2))
 
 (defn reachable? [steps point]
   (let [distance (solve point)]
     (and (pos? distance)
          (>= steps distance))))
 
+;; make sure to count starting point
 (defn solve-2 [steps]
-  (count (filter (partial reachable? steps) (all-points steps))))
+  (inc (count (filter (partial reachable? steps) (all-points steps)))))
 
 ;; garbage
+(defn blah [point]
+  (let [meh (solve point)]
+    (cond
+      (neg? meh) " "
+      (> meh 50) "."
+      :default (str meh))))
 (defn vis-open? [[x y] _]
-  (if (open? [y x]) " " "#"))
-(def visualization (matrix/emap-indexed vis-open? (matrix/matrix (repeat 50 (repeat 50 " ")))))
+  (if (open? [y x]) (blah [y x]) "  "))
+(def visualization (matrix/emap-indexed vis-open? (matrix/matrix (repeat 27 (repeat 27 " ")))))
 
-(def path (alg-generic/dijkstra-path successors (constantly 1) [1 1] [31 39]))
-(def path-visualization (matrix/set-indices visualization (map reverse path) (repeat (count path) ".")))
+#_(def path (alg-generic/dijkstra-path successors (constantly 1) [1 1] [31 39]))
+#_(def path-visualization (matrix/set-indices visualization (map reverse path) (repeat (count path) ".")))
 ;; (matrix/pm path-visualization)
