@@ -1,7 +1,9 @@
 (ns advent.day13
-  (:require [loom.alg-generic :as alg-generic]))
+  (:require [loom.alg-generic :as alg-generic]
+            [loom.alg :as alg]))
 
 (def input 1358)
+#_(def input 10)
 (def target [31 39])
 
 (defn hamming-weight [x]
@@ -10,11 +12,14 @@
       c
       (recur (inc c) (bit-and x (dec x))))))
 
-(def hamming-weights (into [] (map hamming-weight (range 100000))))
+(defn open? [[x y]]
+  (or (neg? x)
+        (neg? y)
+        (even? (hamming-weight (+ input (* x x) (* 3 x) (* 2 x y) y (* y y))))))
 
-(defn wall? [point]
-  (let [[x y] point]
-    (odd? (hamming-weights (+ input (* x x) (* 3 x) (* 2 x y) y (* y y))))))
+(defn successors [[x y]]
+  (filter open? [[(inc x) y] [(dec x) y] [x (inc y)] [x (dec y)]]))
 
-(defn successors [point]
-  )
+;; loom counts the starting node
+(defn solve []
+  (dec (count (alg-generic/dijkstra-path successors (constantly 1) [1 1] [31 39]))))
