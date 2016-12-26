@@ -40,12 +40,14 @@
         :x (inc (:x node))
         :y (:y node)}))
 
-(defn doors [node]
-  (concat (x-doors node) (y-doors node)))
-
 (defn successor-fn [node]
-  (let [[u d l r] (digest/md5 (str input (:steps node)))]
-    (filter identity [(up u node) (down d node) (left l node) (right r node)])))
+  (if (done? node)
+    []
+    (let [[u d l r] (digest/md5 (str input (:steps node)))]
+      (filter identity [(up u node)
+                        (down d node)
+                        (left l node)
+                        (right r node)]))))
 
 ;; works like loom's generic bf-path, but considers "end"
 ;; to be any node that satisfies predicate
@@ -57,3 +59,20 @@
 
 (defn solve []
   (bf-path-pred successor-fn start-node done?))
+
+(defn step-count [node]
+  (dissoc (assoc node :step-count (count (:steps node))) :steps))
+
+(defn df-leaves [node]
+  (let [children (successor-fn node)]
+    (if (empty? children)
+      (step-count node)
+      (map df-leaves children))))
+
+(defn max-steps [x y]
+  (if (> (:step-count x) (:step-count y))
+    x
+    y))
+
+(defn solve-2 []
+  (->> start-node df-leaves flatten (filter done?) (reduce max-steps)))
